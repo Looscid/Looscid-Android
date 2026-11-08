@@ -46,6 +46,15 @@ The APK ends up in `app/build/outputs/apk/debug/app-debug.apk`.
 
 You don't have to build it on your own computer. GitHub Actions builds it on every push. Open the Actions tab, pick a run, and download the `Looscid-debug-apk` file.
 
+## How versions work
+
+- Looscid is in beta right now. The web beta's YEAR.FEATURES.FIXES (BUILD) style, like 2026.138.57 (195), is only for the web beta.
+- Until launch, every app stays at 0.x. This app is 0.1.0.
+- The number in parentheses is each app's own build count. Android counts only Android builds, so v0.1.0 is 0.1.0 (1).
+- When Looscid launches, every app (web, Android and iOS) launches together at 1.0.
+
+Builds so far: web 195, Android 1, iOS 0 (196 total).
+
 ## Making a new release
 
 1. In `app/build.gradle.kts`, raise `versionCode` by 1 and set `versionName` (like `0.2.0`).
