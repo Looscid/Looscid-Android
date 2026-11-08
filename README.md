@@ -49,7 +49,7 @@ You don't have to build it on your own computer. GitHub Actions builds it on eve
 ## How versions work
 
 - Looscid is in beta right now. The web beta's YEAR.FEATURES.FIXES (BUILD) style, like 2026.138.57 (195), is only for the web beta.
-- Until launch, every app stays at 0.x. This app is 0.1.0.
+- Until launch, the Android and iOS apps stay at 0.x. This app is 0.1.0.
 - The number in parentheses is each app's own build count. Android counts only Android builds, so v0.1.0 is 0.1.0 (1).
 - When Looscid launches, every app (web, Android and iOS) launches together at 1.0.
 
