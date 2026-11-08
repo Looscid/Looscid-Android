@@ -17,7 +17,7 @@ The web version lives in [Looscid/Looscid](https://github.com/Looscid/Looscid). 
 
 It's a normal Android app that runs in its own sandbox, like any app from a store. It only asks for internet and permission to install its own updates. It can't change system settings, doesn't run in the background and doesn't need root. The worst thing that can happen is the app closing, not your phone. If the page itself crashes, the app reloads it.
 
-Every push is also tested on Android emulators (Android 10 and Android 14): GitHub installs the app, opens it, waits 20 seconds and checks it didn't crash.
+Every push is also tested on Android emulators (Android 10 and Android 13): GitHub installs the app, opens it, waits 20 seconds and checks it didn't crash.
 
 ## How updates work
 
