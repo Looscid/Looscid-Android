@@ -23,6 +23,9 @@ import kotlin.concurrent.thread
  *
  * Most Looscid updates never need this, because the app loads the live web
  * app. This is only for when the Android shell itself changes.
+ *
+ * Every step is wrapped so a bad network, odd release data or a missing
+ * installer just skips the update. It never closes the app.
  */
 class Updater(private val activity: Activity) {
 
@@ -32,7 +35,7 @@ class Updater(private val activity: Activity) {
         thread {
             val release = try { fetchLatestRelease() } catch (e: Exception) { null }
             if (release != null && isNewer(release.version, BuildConfig.VERSION_NAME)) {
-                activity.runOnUiThread { showUpdateDialog(release) }
+                activity.runOnUiThread { safely { showUpdateDialog(release) } }
             }
         }
     }
@@ -66,7 +69,7 @@ class Updater(private val activity: Activity) {
         AlertDialog.Builder(activity)
             .setTitle(R.string.update_title)
             .setMessage(activity.getString(R.string.update_message, release.version, notes))
-            .setPositiveButton(R.string.update_button) { _, _ -> download(release) }
+            .setPositiveButton(R.string.update_button) { _, _ -> safely { download(release) } }
             .setNegativeButton(R.string.later_button, null)
             .show()
     }
@@ -88,9 +91,11 @@ class Updater(private val activity: Activity) {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 if (intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) != id) return
-                context.unregisterReceiver(this)
-                if (succeeded(downloads, id)) install(context, file)
-                else Toast.makeText(context, R.string.update_failed, Toast.LENGTH_LONG).show()
+                safely {
+                    context.unregisterReceiver(this)
+                    if (succeeded(downloads, id)) install(context, file)
+                    else Toast.makeText(context, R.string.update_failed, Toast.LENGTH_LONG).show()
+                }
             }
         }
         ContextCompat.registerReceiver(
@@ -113,6 +118,11 @@ class Updater(private val activity: Activity) {
             .setDataAndType(uri, APK_MIME)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
+    }
+
+    /** Runs [block], and if anything goes wrong, skips it quietly instead of crashing. */
+    private inline fun safely(block: () -> Unit) {
+        try { block() } catch (e: Exception) { /* no update this time */ }
     }
 
     companion object {

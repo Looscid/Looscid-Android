@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -23,22 +24,17 @@ import androidx.core.view.WindowInsetsCompat
  */
 class MainActivity : Activity() {
 
+    private lateinit var root: FrameLayout
     private lateinit var web: WebView
     private var pendingFilePick: ValueCallback<Array<Uri>>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        web = WebView(this).apply {
-            settings.javaScriptEnabled = true
-            settings.domStorageEnabled = true
-            webViewClient = LooscidClient()
-            webChromeClient = FilePickerClient()
-        }
-
+        web = newWebView()
         // Draw edge to edge, then pad so nothing hides under the status bar,
         // the navigation bar or the on-screen keyboard.
-        val root = FrameLayout(this).apply { addView(web) }
+        root = FrameLayout(this).apply { addView(web) }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
             val bars = insets.getInsets(
@@ -54,6 +50,13 @@ class MainActivity : Activity() {
         }
 
         Updater(this).checkForUpdate()
+    }
+
+    private fun newWebView() = WebView(this).apply {
+        settings.javaScriptEnabled = true
+        settings.domStorageEnabled = true
+        webViewClient = LooscidClient()
+        webChromeClient = FilePickerClient()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -81,6 +84,20 @@ class MainActivity : Activity() {
             } catch (e: ActivityNotFoundException) {
                 // Nothing on the phone can open it. Stay put.
             }
+            return true
+        }
+
+        /**
+         * If the web page's engine crashes or Android stops it to save memory,
+         * swap in a fresh WebView and reload Looscid instead of closing the app.
+         */
+        override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+            if (view != web) return true
+            root.removeView(web)
+            web.destroy()
+            web = newWebView()
+            root.addView(web)
+            web.loadUrl(HOME_URL)
             return true
         }
     }
