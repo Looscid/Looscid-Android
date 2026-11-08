@@ -131,36 +131,16 @@ class Updater(private val activity: Activity) {
         private const val APK_NAME = "looscid-update.apk"
         private const val APK_MIME = "application/vnd.android.package-archive"
 
-        /**
-         * True when [remote] is a higher version than [local].
-         *
-         * Versions are YEAR.FEATURES.FIXES, like "2026.138.57", the same as
-         * the web app. Each part is compared as a number, left to right, so
-         * 2026.138.57 is newer than 2026.99.300, and every 2026.x.x version
-         * is newer than the first Android release, 0.1.0. A "v" in front
-         * (the tag) or a build like " (195)" after it is ignored. If the
-         * release tag isn't a version at all, no update is offered.
-         */
+        /** True when [remote] (like "0.2.0") is a higher version than [local]. */
         fun isNewer(remote: String, local: String): Boolean {
-            val a = parseVersion(remote) ?: return false
-            val b = parseVersion(local) ?: return true
+            val a = remote.split(".").map { it.takeWhile(Char::isDigit).toIntOrNull() ?: 0 }
+            val b = local.split(".").map { it.takeWhile(Char::isDigit).toIntOrNull() ?: 0 }
             for (i in 0 until maxOf(a.size, b.size)) {
-                val x = a.getOrElse(i) { 0L }
-                val y = b.getOrElse(i) { 0L }
+                val x = a.getOrElse(i) { 0 }
+                val y = b.getOrElse(i) { 0 }
                 if (x != y) return x > y
             }
             return false
-        }
-
-        /** "v2026.138.57 (195)" -> [2026, 138, 57], or null if it isn't a version. */
-        fun parseVersion(version: String): List<Long>? {
-            val core = version.trim()
-                .removePrefix("v").removePrefix("V")
-                .substringBefore(" ").substringBefore("(")
-                .substringBefore("-").substringBefore("+")
-            val parts = core.split(".")
-            if (parts.size !in 1..4) return null
-            return parts.map { part -> part.toLongOrNull()?.takeIf { it >= 0 } ?: return null }
         }
     }
 }

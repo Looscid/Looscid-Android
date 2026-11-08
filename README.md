@@ -46,19 +46,11 @@ The APK ends up in `app/build/outputs/apk/debug/app-debug.apk`.
 
 You don't have to build it on your own computer. GitHub Actions builds it on every push. Open the Actions tab, pick a run, and download the `Looscid-debug-apk` file.
 
-## How versions work
-
-The Android app uses the same version numbers as Looscid on the web: YEAR.FEATURES.FIXES, like `2026.138.57`. The Android version matches the web version it was built alongside (the one in [app/version.json](https://github.com/Looscid/Looscid/blob/main/app/version.json) in Looscid/Looscid at the time). The web's build number, like (195), isn't part of the Android version.
-
-- `versionName` is that version, like `2026.138.57`.
-- `versionCode` is made from it: YEAR × 1,000,000 + FEATURES × 1,000 + FIXES. So `2026.138.57` is `2026138057`. Android only installs an update when this number goes up, and it always does when the version goes up.
-- The update check compares versions as numbers, one part at a time, so `2026.138.57` is newer than `2026.99.300`. The first Android release, `0.1.0`, counts as older than every `2026` version, so 0.1.0 phones get offered the update.
-
 ## Making a new release
 
-1. In `app/build.gradle.kts`, set `looscidVersion` to the current web version (like `2026.139.0`). `versionName` and `versionCode` come from it.
-2. Write what's new in `whats-new/v2026.139.0.txt`. Keep it plain text, since it's shown in the update popup.
-3. Push a tag called `v2026.139.0`. GitHub builds the APK and makes the release, and everyone's app sees it next time they open it.
+1. In `app/build.gradle.kts`, raise `versionCode` by 1 and set `versionName` (like `0.2.0`).
+2. Write what's new in `whats-new/v0.2.0.txt`. Keep it plain text, since it's shown in the update popup.
+3. Push a tag called `v0.2.0`. GitHub builds the APK and makes the release, and everyone's app sees it next time they open it.
 
 ## Signing
 

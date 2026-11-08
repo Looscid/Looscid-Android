@@ -3,21 +3,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-// The app's version is the Looscid web version it was built alongside
-// (YEAR.FEATURES.FIXES, see app/version.json in Looscid/Looscid).
-// Change only this line for a release.
-val looscidVersion = "2026.138.57"
-
-// Android only installs an update when versionCode goes up, so it's made
-// from the version: YEAR * 1,000,000 + FEATURES * 1,000 + FIXES.
-// 2026.138.57 -> 2026138057. Every newer version gets a bigger number,
-// and it's way above 0.1.0's code (1).
-fun versionCodeOf(version: String): Int {
-    val (year, features, fixes) = version.split(".").map { it.toInt() }
-    require(features < 1000 && fixes < 1000) { "FEATURES and FIXES must stay under 1000" }
-    return year * 1_000_000 + features * 1_000 + fixes
-}
-
 android {
     namespace = "social.looscid.app"
     compileSdk = 35
@@ -26,9 +11,10 @@ android {
         applicationId = "social.looscid.app"
         minSdk = 26
         targetSdk = 35
-        // Both come from looscidVersion at the top of this file.
-        versionCode = versionCodeOf(looscidVersion)
-        versionName = looscidVersion
+        // Bump BOTH of these for every release. Android only installs an
+        // update when versionCode goes up.
+        versionCode = 1
+        versionName = "0.1.0"
     }
 
     signingConfigs {
