@@ -1,0 +1,3 @@
+Looscid for Android now uses the same version numbers as Looscid on the web: 2026.138.57.
+- The app's version matches the web version it was built alongside
+- The update check compares versions the right way, so phones on 0.1.0 get this update
