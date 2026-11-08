@@ -1,0 +1,5 @@
+The first Looscid app for Android!
+- Opens Looscid full screen, no browser bars
+- Back button goes back inside Looscid
+- Links to other sites open in your browser
+- Tells you when a new version of the app is out, with a one tap update

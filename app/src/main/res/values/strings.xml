@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Looscid</string>
+    <string name="update_title">Looscid needs an update</string>
+    <string name="update_message">What\'s new in version %1$s:\n\n%2$s</string>
+    <string name="update_no_notes">Bug fixes and improvements.</string>
+    <string name="update_button">Update</string>
+    <string name="later_button">Later</string>
+    <string name="update_downloading">Downloading the Looscid update…</string>
+    <string name="update_failed">The update didn\'t download. Try again later.</string>
+</resources>
