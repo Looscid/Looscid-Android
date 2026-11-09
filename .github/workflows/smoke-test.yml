@@ -24,10 +24,18 @@ jobs:
           java-version: "17"
           cache: gradle
 
+      # Downloads from Maven Central and Google sometimes fail for a minute
+      # (403s, broken zips). That's what made this test flaky, not the app.
+      # So the download steps get 3 tries. The test itself never gets retried.
       - name: Build the debug APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          for try in 1 2 3; do
+            ./gradlew assembleDebug --no-daemon && break
+            if [ "$try" = 3 ]; then exit 1; fi
+            echo "Gradle build failed (try $try of 3), waiting $((try * 30))s then trying again"
+            sleep $((try * 30))
+          done
           cp app/build/outputs/apk/debug/app-debug.apk Looscid.apk
 
       - name: Turn on KVM so the emulator runs fast
@@ -35,6 +43,21 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+
+      # The emulator step below installs these too, but with no retry. If they're
+      # already here it skips the download.
+      - name: Download the emulator and system image
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          [ -x "$SDKM" ] || SDKM=sdkmanager
+          yes | "$SDKM" --licenses > /dev/null || true
+          for try in 1 2 3; do
+            "$SDKM" --install emulator "system-images;android-${{ matrix.api-level }};google_apis;x86_64" --channel=0 > /dev/null && break
+            if [ "$try" = 3 ]; then exit 1; fi
+            echo "SDK download failed (try $try of 3), cleaning up and trying again"
+            rm -rf "$ANDROID_HOME/.temp" "$ANDROID_HOME/.downloadIntermediates" "$ANDROID_HOME/system-images/android-${{ matrix.api-level }}"
+            sleep $((try * 20))
+          done
 
       - name: Install, open and watch for crashes
         uses: reactivecircus/android-emulator-runner@v2
